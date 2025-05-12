@@ -24,15 +24,10 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: |
-          npm install -g serve
+        run: npm install
 
       - name: Validate HTML
-        run: |
-          if ! command -v htmlhint &> /dev/null; then
-            npm install -g htmlhint
-          fi
-          htmlhint simulador-thompson.html
+        run: npx htmlhint simulador-thompson.html
 
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')

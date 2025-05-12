@@ -1,0 +1,14 @@
+{
+  "name": "thompson-sampling",
+  "version": "1.0.0",
+  "description": "Thompson Sampling Simulator",
+  "scripts": {
+    "start": "serve ."
+  },
+  "dependencies": {
+    "serve": "^14.2.1"
+  },
+  "devDependencies": {
+    "htmlhint": "^1.1.4"
+  }
+} 
