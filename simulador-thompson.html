@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simulador Interactivo de Thompson Sampling</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.5/jstat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        h1, h2, h3 {
+            color: #444;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .step-title {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 5px solid #5b9bd5;
+            margin: 30px 0 20px 0;
+        }
+        .step-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #5b9bd5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 20px 0;
+            display: block;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #4a8bc5;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .carousel {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+        }
+        .carousel-item {
+            width: 30%;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .hidden {
+            display: none;
+        }
+        .code-block {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
+            white-space: pre-wrap;
+            margin: 20px 0;
+        }
+        .explanation {
+            background-color: #e9f7fe;
+            border-left: 5px solid #5b9bd5;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        #resetSimulation {
+            background-color: #d9534f;
+            margin-top: 40px;
+        }
+        #resetSimulation:hover {
+            background-color: #c9433f;
+        }
+        /* Estilos para el formulario de configuración */
+        .concert-input {
+            background-color: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #add-concert {
+            background-color: #28a745;
+            margin-right: 10px;
+        }
+        #add-concert:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simulador Interactivo de Thompson Sampling</h1>
+    
+    <div class="explanation">
+        <p>Este programa muestra paso a paso cómo utilizar Thompson Sampling para ordenar conciertos en un carrusel promocional basado en datos de rendimiento.</p>
+        <p>Primero, configura los datos de los conciertos:</p>
+    </div>
+
+    <!-- CONFIGURACIÓN INICIAL -->
+    <div id="config-step" class="step">
+        <h2 class="step-title">CONFIGURACIÓN DE DATOS</h2>
+        <div class="step-content">
+            <form id="concert-config-form">
+                <div id="concerts-container">
+                    <div class="concert-input">
+                        <h3>Concierto 1</h3>
+                        <div class="form-group">
+                            <label>Nombre del Concierto:</label>
+                            <input type="text" name="name[]" value="Vivaldi: Las Cuatro Estaciones" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Impresiones:</label>
+                            <input type="number" name="impressions[]" value="10000" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Clics:</label>
+                            <input type="number" name="clicks[]" value="800" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Vistas:</label>
+                            <input type="number" name="views[]" value="5000" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Compras:</label>
+                            <input type="number" name="purchases[]" value="400" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Margen Bruto (USD):</label>
+                            <input type="number" name="gross_margin[]" value="12.0" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Color (hex):</label>
+                            <input type="color" name="color[]" value="#1f77b4" required>
+                        </div>
+                    </div>
+                    <div class="concert-input">
+                        <h3>Concierto 2</h3>
+                        <div class="form-group">
+                            <label>Nombre del Concierto:</label>
+                            <input type="text" name="name[]" value="Tributo a Coldplay" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Impresiones:</label>
+                            <input type="number" name="impressions[]" value="6000" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Clics:</label>
+                            <input type="number" name="clicks[]" value="600" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Vistas:</label>
+                            <input type="number" name="views[]" value="3000" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Compras:</label>
+                            <input type="number" name="purchases[]" value="300" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Margen Bruto (USD):</label>
+                            <input type="number" name="gross_margin[]" value="10.0" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Color (hex):</label>
+                            <input type="color" name="color[]" value="#ff7f0e" required>
+                        </div>
+                    </div>
+                    <div class="concert-input">
+                        <h3>Concierto 3</h3>
+                        <div class="form-group">
+                            <label>Nombre del Concierto:</label>
+                            <input type="text" name="name[]" value="Tributo a Queen" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Impresiones:</label>
+                            <input type="number" name="impressions[]" value="2000" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Clics:</label>
+                            <input type="number" name="clicks[]" value="100" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Vistas:</label>
+                            <input type="number" name="views[]" value="1000" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Compras:</label>
+                            <input type="number" name="purchases[]" value="50" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Margen Bruto (USD):</label>
+                            <input type="number" name="gross_margin[]" value="9.0" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Color (hex):</label>
+                            <input type="color" name="color[]" value="#2ca02c" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" id="add-concert">Añadir Otro Concierto</button>
+                <button type="submit">Iniciar Simulación</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PASO 1: DATOS DE RENDIMIENTO -->
+    <div id="step1" class="step">
+        <h2 class="step-title">PASO 1: DATOS DE RENDIMIENTO DE LOS CONCIERTOS</h2>
+        <div class="step-content">
+            <p>Estos son los datos de rendimiento histórico para cada concierto:</p>
+            <table id="performance-data">
+                <thead>
+                    <tr>
+                        <th>Concierto</th>
+                        <th>Impresiones</th>
+                        <th>Clics</th>
+                        <th>Vistas</th>
+                        <th>Compras</th>
+                        <th>Margen Bruto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Se llenará con JavaScript -->
+                </tbody>
+            </table>
+            
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+            
+            <div class="explanation">
+                <p>Estos son los datos de rendimiento histórico para cada concierto:</p>
+                <ul>
+                    <li>Las <strong>IMPRESIONES</strong> son el número de veces que se mostró cada concierto</li>
+                    <li>Los <strong>CLICS</strong> son cuántas veces los usuarios hicieron clic en el concierto</li>
+                    <li>Las <strong>VISTAS</strong> son cuántas veces los usuarios vieron la página de detalles</li>
+                    <li>Las <strong>COMPRAS</strong> son cuántos tickets se vendieron</li>
+                    <li>El <strong>MARGEN BRUTO</strong> es la ganancia media por ticket vendido en USD</li>
+                </ul>
+                <p>Estos datos se usarán para calcular métricas clave como la tasa de clics (CTR) y la tasa de conversión por vista (CPR).</p>
+            </div>
+            
+            <button id="next1">Siguiente: Calcular Métricas</button>
+        </div>
+    </div>
+
+    <!-- PASO 2: CALCULO DE METRICAS OBSERVADAS -->
+    <div id="step2" class="step hidden">
+        <h2 class="step-title">PASO 2: CÁLCULO DE MÉTRICAS OBSERVADAS</h2>
+        <div class="step-content">
+            <p>Calculando CTR (Click-Through Rate) y CPR (Conversion per View Rate):</p>
+            <div class="code-block">CTR = Clics / Impresiones
+CPR = Compras / Vistas</div>
+            
+            <div id="metrics-calculation">
+                <!-- Se llenará con JavaScript -->
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="metricsChart"></canvas>
+            </div>
+            
+            <div class="explanation">
+                <p>Las métricas calculadas muestran:</p>
+                <ul>
+                    <li>Coldplay tiene el CTR y CPR más altos (10%)</li>
+                    <li>Vivaldi tiene un rendimiento intermedio (8% en ambas métricas)</li>
+                    <li>Queen tiene los valores más bajos (5% en ambas métricas)</li>
+                </ul>
+                <p>Si solo consideráramos estas métricas observadas, Coldplay siempre aparecería primero en nuestro carrusel. Sin embargo, Thompson Sampling nos permitirá balancear la explotación (mostrar lo que sabemos que funciona) con la exploración (dar oportunidades a opciones menos probadas).</p>
+            </div>
+            
+            <button id="next2">Siguiente: Distribuciones Beta</button>
+        </div>
+    </div>
+
+    <!-- PASO 3: DISTRIBUCIONES BETA -->
+    <div id="step3" class="step hidden">
+        <h2 class="step-title">PASO 3: MODELADO CON DISTRIBUCIONES BETA</h2>
+        <div class="step-content">
+            <p>Para cada métrica, modelamos la incertidumbre usando la distribución Beta:</p>
+            <div class="code-block">Beta(α, β) donde:
+  α = éxitos + 1
+  β = fracasos + 1
+
+El '+1' se conoce como suavizado de Laplace y evita distribuciones degeneradas.</div>
+            
+            <div id="beta-parameters">
+                <!-- Se llenará con JavaScript -->
+            </div>
+            
+            <div class="explanation">
+                <p>La distribución Beta es perfecta para modelar tasas de conversión porque:</p>
+                <ul>
+                    <li>Está restringida entre 0 y 1, como nuestras métricas</li>
+                    <li>Captura naturalmente la incertidumbre basada en los datos observados</li>
+                    <li>Con más datos, la distribución se vuelve más estrecha alrededor del valor real</li>
+                </ul>
+                <p>Interpretación de los parámetros α y β:</p>
+                <ul>
+                    <li><strong>α (alfa)</strong>: representa éxitos + 1. Valores más altos indican mayor probabilidad de éxito.</li>
+                    <li><strong>β (beta)</strong>: representa fracasos + 1. Valores más altos indican mayor probabilidad de fracaso.</li>
+                </ul>
+                <p>La forma de la distribución nos dice:</p>
+                <ul>
+                    <li><strong>Curva alta y estrecha</strong>: Mayor certeza en la estimación</li>
+                    <li><strong>Curva baja y ancha</strong>: Mayor incertidumbre</li>
+                    <li><strong>Desplazada a la derecha</strong>: Mayor probabilidad de valores altos</li>
+                    <li><strong>Desplazada a la izquierda</strong>: Mayor probabilidad de valores bajos</li>
+                    <li><strong>Simétrica</strong>: Igual probabilidad en ambos extremos</li>
+                </ul>
+            </div>
+            
+            <button id="next3">Siguiente: Visualizar Distribuciones</button>
+        </div>
+    </div>
+
+    <!-- PASO 4: VISUALIZACION DE DISTRIBUCIONES -->
+    <div id="step4" class="step hidden">
+        <h2 class="step-title">PASO 4: VISUALIZACIÓN DE LAS DISTRIBUCIONES BETA</h2>
+        <div class="step-content">
+            <div class="chart-container">
+                <canvas id="ctrDistributionChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="cprDistributionChart"></canvas>
+            </div>
+            
+            <div class="explanation">
+                <p>Analicemos las distribuciones Beta para cada concierto:</p>
+                
+                <h3>Interpretación de las Curvas</h3>
+                <ul>
+                    <li><strong>Altura de la Curva</strong>:
+                        <ul>
+                            <li>Una curva más alta indica mayor certeza en la estimación</li>
+                            <li>Una curva más baja indica mayor incertidumbre</li>
+                        </ul>
+                    </li>
+                    <li><strong>Ancho de la Curva</strong>:
+                        <ul>
+                            <li>Una curva estrecha sugiere que tenemos una buena idea del valor real</li>
+                            <li>Una curva ancha indica que el valor podría estar en un rango más amplio</li>
+                        </ul>
+                    </li>
+                    <li><strong>Posición del Pico</strong>:
+                        <ul>
+                            <li>Si el pico está más a la derecha, hay mayor probabilidad de tasas altas</li>
+                            <li>Si el pico está más a la izquierda, hay mayor probabilidad de tasas bajas</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3>Ejemplos de Formas</h3>
+                <ul>
+                    <li><strong>Beta(2,2)</strong>: Simétrica, moderada incertidumbre</li>
+                    <li><strong>Beta(5,1)</strong>: Sesgada hacia valores altos</li>
+                    <li><strong>Beta(1,5)</strong>: Sesgada hacia valores bajos</li>
+                    <li><strong>Beta(10,10)</strong>: Muy concentrada, alta certeza</li>
+                    <li><strong>Beta(0.5,0.5)</strong>: Forma de U, máxima incertidumbre</li>
+                </ul>
+
+                <p>En nuestro caso:</p>
+                <ul>
+                    <li>Conciertos con más datos (más impresiones/vistas) tendrán curvas más estrechas</li>
+                    <li>Conciertos con mejor rendimiento tendrán picos más a la derecha</li>
+                    <li>La superposición entre curvas indica que hay incertidumbre en la diferencia de rendimiento</li>
+                </ul>
+            </div>
+            
+            <button id="next4">Siguiente: Realizar Muestreo</button>
+        </div>
+    </div>
+
+    <!-- PASO 5: MUESTREO DE THOMPSON -->
+    <div id="step5" class="step hidden">
+        <h2 class="step-title">PASO 5: MUESTREO DE THOMPSON</h2>
+        <div class="step-content">
+            <p>Ahora realizaremos el muestreo de Thompson, obteniendo un valor aleatorio de cada distribución Beta para cada concierto.</p>
+            
+            <div id="sampled-values">
+                <!-- Se llenará con JavaScript -->
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="ctrSamplingChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="cprSamplingChart"></canvas>
+            </div>
+            
+            <div class="explanation">
+                <p>El muestreo de Thompson ha generado un valor aleatorio de cada distribución:</p>
+                <ol>
+                    <li>Las <strong>LÍNEAS VERTICALES</strong> muestran el valor específico muestreado de cada distribución</li>
+                    <li>Estos valores son <strong>ALEATORIOS</strong>, por lo que variarán cada vez que se ejecute el algoritmo</li>
+                    <li>Valores más altos tienen más probabilidad cerca del pico de cada distribución</li>
+                    <li>Hay posibilidad de muestrear valores lejanos de la media si hay incertidumbre</li>
+                </ol>
+                <p>Esta aleatoriedad es clave: permite que conciertos con menor rendimiento observado tengan oportunidad de ser seleccionados si su distribución tiene suficiente incertidumbre.</p>
+            </div>
+            
+            <button id="next5">Siguiente: Calcular Scores</button>
+        </div>
+    </div>
+
+    <!-- PASO 6: CALCULO DE SCORES -->
+    <div id="step6" class="step hidden">
+        <h2 class="step-title">PASO 6: CÁLCULO DE SCORES</h2>
+        <div class="step-content">
+            <p>Ahora calculamos un score para cada concierto utilizando la fórmula:</p>
+            <div class="code-block">Score = CTR_muestreado × CPR_muestreado × Margen_Bruto</div>
+            
+            <div id="scores-calculation">
+                <!-- Se llenará con JavaScript -->
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="scoresChart"></canvas>
+            </div>
+            
+            <div class="explanation">
+                <p>Los scores calculados determinan el orden final:</p>
+                <ol id="score-ranking">
+                    <!-- Se llenará con JavaScript -->
+                </ol>
+                <p>Estos scores combinan:</p>
+                <ul>
+                    <li>La probabilidad de que un usuario haga clic (CTR)</li>
+                    <li>La probabilidad de que compre después de ver (CPR)</li>
+                    <li>El valor de negocio de cada compra (Margen Bruto)</li>
+                </ul>
+                <p>Los valores muestreados introducen un elemento de aleatoriedad controlada que permite descubrir el rendimiento real de cada concierto a lo largo del tiempo.</p>
+            </div>
+            
+            <button id="next6">Siguiente: Ver Ranking Final</button>
+        </div>
+    </div>
+
+    <!-- PASO 7: RANKING FINAL -->
+    <div id="step7" class="step hidden">
+        <h2 class="step-title">PASO 7: CLASIFICACIÓN FINAL DEL CARRUSEL</h2>
+        <div class="step-content">
+            <p>Con los scores calculados, ordenamos los conciertos en el carrusel:</p>
+            
+            <ol id="final-ranking">
+                <!-- Se llenará con JavaScript -->
+            </ol>
+            
+            <div class="carousel" id="carousel-view">
+                <!-- Se llenará con JavaScript -->
+            </div>
+            
+            <div class="explanation">
+                <p>¡El carrusel está listo! El orden final está determinado por los scores de Thompson Sampling.</p>
+                <p>Este orden no es permanente. Cada vez que se aplica Thompson Sampling, se generan nuevas muestras aleatorias de las distribuciones, lo que puede resultar en un orden diferente incluso con los mismos datos subyacentes.</p>
+            </div>
+            
+            <button id="next7">Siguiente: Conclusión</button>
+        </div>
+    </div>
+
+    <!-- CONCLUSIÓN -->
+    <div id="conclusion" class="step hidden">
+        <h2 class="step-title">CONCLUSIÓN</h2>
+        <div class="step-content">
+            <div class="explanation">
+                <p>Thompson Sampling nos ha permitido crear un sistema de ranking que:</p>
+                <ol>
+                    <li><strong>Balancea explotación y exploración:</strong>
+                        <ul>
+                            <li>Explota el conocimiento actual sobre el rendimiento de los conciertos</li>
+                            <li>Explora opciones menos probadas para descubrir su verdadero potencial</li>
+                        </ul>
+                    </li>
+                    <li><strong>Maneja la incertidumbre:</strong>
+                        <ul>
+                            <li>Usa distribuciones Beta para modelar la incertidumbre en CTR y CPR</li>
+                            <li>Permite que conciertos con menos datos tengan oportunidades de aparecer</li>
+                        </ul>
+                    </li>
+                    <li><strong>Optimiza el valor de negocio:</strong>
+                        <ul>
+                            <li>Considera múltiples métricas (CTR, CPR, Margen Bruto)</li>
+                            <li>Combina estas métricas en un score único para cada concierto</li>
+                        </ul>
+                    </li>
+                    <li><strong>Se adapta con el tiempo:</strong>
+                        <ul>
+                            <li>Las distribuciones se actualizan con nuevos datos</li>
+                            <li>El sistema mejora su precisión con más interacciones</li>
+                        </ul>
+                    </li>
+                </ol>
+                <p>Este enfoque es particularmente útil para:</p>
+                <ul>
+                    <li>Carruseles promocionales</li>
+                    <li>Sistemas de recomendación</li>
+                    <li>Optimización de conversión</li>
+                    <li>A/B testing multi-armado</li>
+                </ul>
+                <p>¡Gracias por usar el Simulador de Thompson Sampling!</p>
+            </div>
+            
+            <button id="resetSimulation">Reiniciar Simulación</button>
+        </div>
+    </div>
+
+    <script>
+        // Funciones auxiliares
+        function formatNumber(num, decimals = 4) {
+            return num.toFixed(decimals);
+        }
+
+        function darkenColor(color, amount) {
+            const num = parseInt(color.replace('#', ''), 16);
+            const r = Math.max(0, (num >> 16) - amount * 255);
+            const g = Math.max(0, ((num >> 8) & 0x00FF) - amount * 255);
+            const b = Math.max(0, (num & 0x0000FF) - amount * 255);
+            return '#' + (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0');
+        }
+
+        function lightenColor(color, amount) {
+            const num = parseInt(color.replace('#', ''), 16);
+            const r = Math.min(255, (num >> 16) + amount * 255);
+            const g = Math.min(255, ((num >> 8) & 0x00FF) + amount * 255);
+            const b = Math.min(255, (num & 0x0000FF) + amount * 255);
+            return '#' + (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0');
+        }
+
+        // Variables globales
+        let observedMetrics = {};
+        let betaParameters = {};
+        let sampledValues = {};
+        let scores = {};
+        let rankings = [];
+
+        // Configuración inicial
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('concert-config-form');
+            const addButton = document.getElementById('add-concert');
+            let concertCount = 3; // Ya tenemos 3 conciertos precargados
+
+            // Función para añadir un nuevo concierto
+            addButton.addEventListener('click', function() {
+                concertCount++;
+                const container = document.getElementById('concerts-container');
+                const newConcert = document.querySelector('.concert-input').cloneNode(true);
+                
+                // Actualizar el título
+                newConcert.querySelector('h3').textContent = `Concierto ${concertCount}`;
+                
+                // Limpiar los valores
+                newConcert.querySelectorAll('input').forEach(input => input.value = '');
+                
+                container.appendChild(newConcert);
+            });
+
+            // Manejar el envío del formulario
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Recopilar datos del formulario
+                const formData = new FormData(form);
+                const concerts = {};
+                
+                // Procesar los datos del formulario
+                const names = formData.getAll('name[]');
+                const impressions = formData.getAll('impressions[]');
+                const clicks = formData.getAll('clicks[]');
+                const views = formData.getAll('views[]');
+                const purchases = formData.getAll('purchases[]');
+                const gross_margins = formData.getAll('gross_margin[]');
+                const colors = formData.getAll('color[]');
+                
+                // Crear objeto de conciertos
+                names.forEach((name, index) => {
+                    concerts[name] = {
+                        impressions: parseInt(impressions[index]),
+                        clicks: parseInt(clicks[index]),
+                        views: parseInt(views[index]),
+                        purchases: parseInt(purchases[index]),
+                        gross_margin: parseFloat(gross_margins[index]),
+                        color: colors[index]
+                    };
+                });
+                
+                // Actualizar los datos globales
+                window.concerts = concerts;
+                
+                // Ocultar configuración y mostrar paso 1
+                hideStep('config-step');
+                showStep('step1');
+                initializeStep1();
+            });
+
+            // Configurar los botones de navegación
+            document.getElementById('next1').addEventListener('click', () => {
+                hideStep('step1');
+                showStep('step2');
+                initializeStep2();
+            });
+            
+            document.getElementById('next2').addEventListener('click', () => {
+                hideStep('step2');
+                showStep('step3');
+                initializeStep3();
+            });
+            
+            document.getElementById('next3').addEventListener('click', () => {
+                hideStep('step3');
+                showStep('step4');
+                initializeStep4();
+            });
+            
+            document.getElementById('next4').addEventListener('click', () => {
+                hideStep('step4');
+                showStep('step5');
+                initializeStep5();
+            });
+            
+            document.getElementById('next5').addEventListener('click', () => {
+                hideStep('step5');
+                showStep('step6');
+                initializeStep6();
+            });
+            
+            document.getElementById('next6').addEventListener('click', () => {
+                hideStep('step6');
+                showStep('step7');
+                initializeStep7();
+            });
+            
+            document.getElementById('next7').addEventListener('click', () => {
+                hideStep('step7');
+                showStep('conclusion');
+            });
+            
+            document.getElementById('resetSimulation').addEventListener('click', () => {
+                location.reload();
+            });
+        });
+
+        // Función para mostrar un paso
+        function showStep(stepId) {
+            document.getElementById(stepId).classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        // Función para ocultar un paso
+        function hideStep(stepId) {
+            document.getElementById(stepId).classList.add('hidden');
+        }
+
+        // PASO 1: Datos de rendimiento
+        function initializeStep1() {
+            // Llenar la tabla de datos
+            const tbody = document.querySelector('#performance-data tbody');
+            tbody.innerHTML = '';
+            
+            Object.entries(window.concerts).forEach(([name, data]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${name}</td>
+                    <td>${data.impressions}</td>
+                    <td>${data.clicks}</td>
+                    <td>${data.views}</td>
+                    <td>${data.purchases}</td>
+                    <td>$${data.gross_margin.toFixed(2)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Crear gráfico de rendimiento
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            
+            const impressionsData = Object.values(window.concerts).map(c => c.impressions);
+            const clicksData = Object.values(window.concerts).map(c => c.clicks);
+            const viewsData = Object.values(window.concerts).map(c => c.views);
+            const purchasesData = Object.values(window.concerts).map(c => c.purchases);
+            const colors = Object.values(window.concerts).map(c => c.color);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(window.concerts),
+                    datasets: [
+                        {
+                            label: 'Impresiones',
+                            data: impressionsData,
+                            backgroundColor: colors,
+                            borderColor: colors.map(c => darkenColor(c, 0.2)),
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Clics',
+                            data: clicksData,
+                            backgroundColor: colors.map(c => lightenColor(c, 0.3)),
+                            borderColor: colors,
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Vistas',
+                            data: viewsData,
+                            backgroundColor: colors.map(c => lightenColor(c, 0.5)),
+                            borderColor: colors,
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Compras',
+                            data: purchasesData,
+                            backgroundColor: colors.map(c => lightenColor(c, 0.7)),
+                            borderColor: colors,
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            type: 'logarithmic'
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Datos de Rendimiento de los Conciertos',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        // PASO 2: Cálculo de métricas
+        function initializeStep2() {
+            // Calcular métricas
+            const metricsDiv = document.getElementById('metrics-calculation');
+            metricsDiv.innerHTML = '';
+            
+            Object.entries(window.concerts).forEach(([name, data]) => {
+                const ctr = data.clicks / data.impressions;
+                const cpr = data.purchases / data.views;
+                
+                // Almacenar métricas
+                observedMetrics[name] = { ctr, cpr };
+                
+                const p = document.createElement('p');
+                p.innerHTML = `<strong>${name}:</strong><br>
+                    CTR = ${data.clicks} / ${data.impressions} = ${formatNumber(ctr)}<br>
+                    CPR = ${data.purchases} / ${data.views} = ${formatNumber(cpr)}`;
+                metricsDiv.appendChild(p);
+            });
+            
+            // Crear gráfico de métricas
+            const ctx = document.getElementById('metricsChart').getContext('2d');
+            
+            const labels = Object.keys(window.concerts);
+            const ctrData = labels.map(name => observedMetrics[name].ctr);
+            const cprData = labels.map(name => observedMetrics[name].cpr);
+            const colors = labels.map(name => window.concerts[name].color);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'CTR',
+                            data: ctrData,
+                            backgroundColor: colors,
+                            borderColor: colors.map(c => darkenColor(c, 0.2)),
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'CPR',
+                            data: cprData,
+                            backgroundColor: colors.map(c => lightenColor(c, 0.3)),
+                            borderColor: colors,
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: Math.max(...ctrData, ...cprData) * 1.2,
+                            title: {
+                                display: true,
+                                text: 'Tasa'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Métricas Observadas: CTR y CPR',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        // PASO 3: Distribuciones Beta
+        function initializeStep3() {
+            // Calcular parámetros Beta
+            const betaDiv = document.getElementById('beta-parameters');
+            betaDiv.innerHTML = '';
+            
+            Object.entries(window.concerts).forEach(([name, data]) => {
+                // Para CTR
+                const ctrAlpha = data.clicks + 1;
+                const ctrBeta = (data.impressions - data.clicks) + 1;
+                // Para CPR
+                const cprAlpha = data.purchases + 1;
+                const cprBeta = (data.views - data.purchases) + 1;
+                
+                // Almacenar parámetros
+                betaParameters[name] = { ctrAlpha, ctrBeta, cprAlpha, cprBeta };
+                
+                const p = document.createElement('p');
+                p.innerHTML = `<strong>${name}:</strong><br>
+                    CTR: α = ${ctrAlpha}, β = ${ctrBeta}<br>
+                    CPR: α = ${cprAlpha}, β = ${cprBeta}`;
+                betaDiv.appendChild(p);
+            });
+            
+            // Crear gráfico de distribuciones Beta para CTR
+            const ctxCTR = document.getElementById('ctrDistributionChart').getContext('2d');
+            const labels = Object.keys(window.concerts);
+            const colors = labels.map(name => window.concerts[name].color);
+            
+            // Generar puntos para la distribución
+            const x = Array.from({length: 100}, (_, i) => i / 100);
+            const datasets = labels.map((name, i) => {
+                const { ctrAlpha, ctrBeta } = betaParameters[name];
+                const y = x.map(xi => betaPDF(xi, ctrAlpha, ctrBeta));
+                return {
+                    label: `${name} CTR`,
+                    data: y,
+                    borderColor: colors[i],
+                    backgroundColor: colors[i] + '40',
+                    fill: true,
+                    tension: 0.4
+                };
+            });
+            
+            new Chart(ctxCTR, {
+                type: 'line',
+                data: {
+                    labels: x,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Tasa de Clics (CTR)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Densidad de Probabilidad'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Distribuciones Beta para CTR',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+
+            // Crear gráfico de distribuciones Beta para CPR
+            const ctxCPR = document.getElementById('cprDistributionChart').getContext('2d');
+            const datasetsCPR = labels.map((name, i) => {
+                const { cprAlpha, cprBeta } = betaParameters[name];
+                const y = x.map(xi => betaPDF(xi, cprAlpha, cprBeta));
+                return {
+                    label: `${name} CPR`,
+                    data: y,
+                    borderColor: colors[i],
+                    backgroundColor: colors[i] + '40',
+                    fill: true,
+                    tension: 0.4
+                };
+            });
+            
+            new Chart(ctxCPR, {
+                type: 'line',
+                data: {
+                    labels: x,
+                    datasets: datasetsCPR
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Tasa de Conversión (CPR)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Densidad de Probabilidad'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Distribuciones Beta para CPR',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        // PASO 4: Muestreo de Thompson
+        function initializeStep4() {
+            // Realizar muestreo de Thompson
+            const sampledValuesDiv = document.getElementById('sampled-values');
+            sampledValuesDiv.innerHTML = '';
+            
+            Object.entries(window.concerts).forEach(([name, data]) => {
+                const ctr = betaSample(betaParameters[name].ctrAlpha, betaParameters[name].ctrBeta);
+                const cpr = betaSample(betaParameters[name].cprAlpha, betaParameters[name].cprBeta);
+                
+                // Almacenar valores muestreados
+                sampledValues[name] = { ctr, cpr };
+                
+                const p = document.createElement('p');
+                p.innerHTML = `<strong>${name}:</strong><br>
+                    CTR = ${formatNumber(ctr)}<br>
+                    CPR = ${formatNumber(cpr)}`;
+                sampledValuesDiv.appendChild(p);
+            });
+            
+            // Crear gráfico de muestreo
+            const ctx = document.getElementById('ctrSamplingChart').getContext('2d');
+            const ctrData = {
+                data: Object.values(sampledValues).map(v => v.ctr),
+                backgroundColor: Object.values(window.concerts).map(c => c.color),
+                borderColor: Object.values(window.concerts).map(c => darkenColor(c.color, 0.2)),
+                borderWidth: 1
+            };
+            const cprData = {
+                data: Object.values(sampledValues).map(v => v.cpr),
+                backgroundColor: Object.values(window.concerts).map(c => c.color),
+                borderColor: Object.values(window.concerts).map(c => darkenColor(c.color, 0.2)),
+                borderWidth: 1
+            };
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(window.concerts),
+                    datasets: [
+                        {
+                            label: 'CTR',
+                            data: ctrData.data,
+                            backgroundColor: ctrData.backgroundColor,
+                            borderColor: ctrData.borderColor,
+                            borderWidth: ctrData.borderWidth
+                        },
+                        {
+                            label: 'CPR',
+                            data: cprData.data,
+                            backgroundColor: cprData.backgroundColor,
+                            borderColor: cprData.borderColor,
+                            borderWidth: cprData.borderWidth
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Muestreo de Thompson: CTR y CPR',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        // PASO 5: Cálculo de scores
+        function initializeStep5() {
+            // Calcular scores
+            const scoresDiv = document.getElementById('scores-calculation');
+            scoresDiv.innerHTML = '';
+            
+            Object.entries(window.concerts).forEach(([name, data]) => {
+                const score = sampledValues[name].ctr * sampledValues[name].cpr * data.gross_margin;
+                
+                // Almacenar score
+                scores[name] = score;
+                
+                const p = document.createElement('p');
+                p.innerHTML = `<strong>${name}:</strong><br>
+                    Score = ${formatNumber(sampledValues[name].ctr)} × ${formatNumber(sampledValues[name].cpr)} × $${data.gross_margin.toFixed(2)} = $${formatNumber(score)}`;
+                scoresDiv.appendChild(p);
+            });
+            
+            // Crear gráfico de scores
+            const ctx = document.getElementById('scoresChart').getContext('2d');
+            const labels = Object.keys(window.concerts);
+            const data = labels.map(name => scores[name]);
+            const colors = labels.map(name => window.concerts[name].color);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Score',
+                            data: data,
+                            backgroundColor: colors,
+                            borderColor: colors.map(c => darkenColor(c, 0.2)),
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: Math.max(...data) * 1.2,
+                            title: {
+                                display: true,
+                                text: 'Valor'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Scores de Thompson Sampling',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        // PASO 6: Ver ranking final
+        function initializeStep6() {
+            // Ordenar conciertos por score
+            rankings = Object.entries(scores).sort((a, b) => b[1] - a[1]).map(entry => entry[0]);
+            
+            // Crear carrusel
+            const carouselDiv = document.getElementById('carousel-view');
+            carouselDiv.innerHTML = '';
+            
+            const carouselItems = document.createElement('div');
+            carouselItems.className = 'carousel';
+            
+            rankings.forEach(name => {
+                const item = document.createElement('div');
+                item.className = 'carousel-item';
+                item.style.backgroundColor = window.concerts[name].color;
+                item.innerHTML = name;
+                carouselItems.appendChild(item);
+            });
+            
+            carouselDiv.appendChild(carouselItems);
+        }
+
+        // PASO 7: Ver ranking final
+        function initializeStep7() {
+            // Mostrar conclusión
+            const conclusionDiv = document.getElementById('conclusion');
+            conclusionDiv.innerHTML = `
+                <p>¡Gracias por usar el Simulador de Thompson Sampling!</p>
+                <button id="resetSimulation">Reiniciar Simulación</button>
+            `;
+        }
+
+        // Función para distribución Beta PDF
+        function betaPDF(x, alpha, beta) {
+            return jStat.beta.pdf(x, alpha, beta);
+        }
+
+        // Función para muestrear de distribución Beta
+        function betaSample(alpha, beta) {
+            return jStat.beta.sample(alpha, beta);
+        }
+    </script>
+</body>
+</html>
