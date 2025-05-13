@@ -221,37 +221,51 @@
         }
 
         .concert-input {
-            background-color: var(--apple-white);
             padding: var(--spacing-xl);
             margin-bottom: var(--spacing-xl);
             border-radius: var(--border-radius);
-            border: 1px solid var(--apple-gray-1);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            color: var(--apple-white);
+            transition: all 0.3s ease;
         }
 
-        .form-group {
-            margin-bottom: var(--spacing-lg);
+        .concert-input:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .concert-input h3 {
+            color: var(--apple-white);
+            margin-top: 0;
         }
 
         .form-group label {
             display: block;
             margin-bottom: var(--spacing-xs);
             font-weight: 500;
-            color: var(--apple-gray-3);
+            color: var(--apple-white);
+            opacity: 0.9;
         }
 
         .form-group input {
             width: 100%;
             padding: var(--spacing-sm);
-            border: 1px solid var(--apple-gray-2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: var(--border-radius-sm);
             font-size: var(--font-size-base);
             transition: border-color 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--apple-white);
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: var(--apple-blue);
+            border-color: var(--apple-white);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
         }
 
         #add-concert {
@@ -264,18 +278,44 @@
         }
 
         #metrics-calculation p, #beta-parameters p, #sampled-values p, #scores-calculation p {
-            background-color: var(--apple-white);
             padding: var(--spacing-md);
             border-radius: var(--border-radius);
             margin-bottom: var(--spacing-md);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            font-size: var(--font-size-sm);
-            line-height: 1.6;
+            color: var(--apple-white);
+            font-weight: 500;
+            opacity: 0.9;
+            transition: all 0.3s ease;
+        }
+
+        #metrics-calculation p[data-concert], #beta-parameters p[data-concert], #sampled-values p[data-concert], #scores-calculation p[data-concert] {
+            background-color: var(--concert-color);
+        }
+
+        #metrics-calculation p:hover, #beta-parameters p:hover, #sampled-values p:hover, #scores-calculation p:hover {
+            opacity: 1;
+            transform: translateY(-2px);
         }
 
         #metrics-calculation strong, #beta-parameters strong, #sampled-values strong, #scores-calculation strong {
-            color: var(--apple-blue);
+            color: var(--apple-white);
             font-weight: 600;
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--spacing-xs);
+            opacity: 0.9;
+        }
+
+        #metrics-calculation .value, #beta-parameters .value, #sampled-values .value, #scores-calculation .value {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin: var(--spacing-xs) 0;
+        }
+
+        #metrics-calculation .formula, #beta-parameters .formula, #sampled-values .formula, #scores-calculation .formula {
+            font-size: var(--font-size-sm);
+            margin-top: var(--spacing-xs);
+            opacity: 0.8;
+            font-family: 'SF Mono', monospace;
         }
 
         #final-ranking li {
@@ -346,6 +386,67 @@
                 padding: var(--spacing-sm);
             }
         }
+
+        .metrics-visualization {
+            display: flex;
+            gap: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .metric-group {
+            flex: 1;
+            background-color: var(--apple-white);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .metric-group h4 {
+            margin-top: 0;
+            margin-bottom: var(--spacing-md);
+            color: var(--apple-gray-3);
+            font-size: var(--font-size-lg);
+        }
+
+        .metric-cards {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .metric-card {
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            color: var(--apple-white);
+            font-weight: 500;
+            opacity: 0.9;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            opacity: 1;
+            transform: translateY(-2px);
+        }
+
+        .metric-card .title {
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--spacing-xs);
+            opacity: 0.9;
+            font-weight: 600;
+        }
+
+        .metric-card .value {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin: var(--spacing-xs) 0;
+        }
+
+        .metric-card .formula {
+            font-size: var(--font-size-sm);
+            margin-top: var(--spacing-xs);
+            opacity: 0.8;
+            font-family: 'SF Mono', monospace;
+        }
     </style>
 </head>
 <body>
@@ -370,19 +471,15 @@
                         </div>
                         <div class="form-group">
                             <label>Impressions:</label>
-                            <input type="number" name="impressions[]" value="10000" min="0" required>
+                            <input type="number" name="impressions[]" value="40" min="0" required>
                         </div>
                         <div class="form-group">
                             <label>Clicks:</label>
-                            <input type="number" name="clicks[]" value="800" min="0" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Views:</label>
-                            <input type="number" name="views[]" value="5000" min="0" required>
+                            <input type="number" name="clicks[]" value="2" min="0" required>
                         </div>
                         <div class="form-group">
                             <label>Purchases:</label>
-                            <input type="number" name="purchases[]" value="400" min="0" required>
+                            <input type="number" name="purchases[]" value="1" min="0" required>
                         </div>
                         <div class="form-group">
                             <label>Gross Margin (USD):</label>
@@ -401,19 +498,15 @@
                         </div>
                         <div class="form-group">
                             <label>Impressions:</label>
-                            <input type="number" name="impressions[]" value="6000" min="0" required>
+                            <input type="number" name="impressions[]" value="30" min="0" required>
                         </div>
                         <div class="form-group">
                             <label>Clicks:</label>
-                            <input type="number" name="clicks[]" value="600" min="0" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Views:</label>
-                            <input type="number" name="views[]" value="3000" min="0" required>
+                            <input type="number" name="clicks[]" value="2" min="0" required>
                         </div>
                         <div class="form-group">
                             <label>Purchases:</label>
-                            <input type="number" name="purchases[]" value="300" min="0" required>
+                            <input type="number" name="purchases[]" value="0" min="0" required>
                         </div>
                         <div class="form-group">
                             <label>Gross Margin (USD):</label>
@@ -432,19 +525,15 @@
                         </div>
                         <div class="form-group">
                             <label>Impressions:</label>
-                            <input type="number" name="impressions[]" value="2000" min="0" required>
+                            <input type="number" name="impressions[]" value="20" min="0" required>
                         </div>
                         <div class="form-group">
                             <label>Clicks:</label>
-                            <input type="number" name="clicks[]" value="100" min="0" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Views:</label>
-                            <input type="number" name="views[]" value="1000" min="0" required>
+                            <input type="number" name="clicks[]" value="1" min="0" required>
                         </div>
                         <div class="form-group">
                             <label>Purchases:</label>
-                            <input type="number" name="purchases[]" value="50" min="0" required>
+                            <input type="number" name="purchases[]" value="0" min="0" required>
                         </div>
                         <div class="form-group">
                             <label>Gross Margin (USD):</label>
@@ -473,9 +562,9 @@
                         <th>Concert</th>
                         <th>Impressions</th>
                         <th>Clicks</th>
-                        <th>Views</th>
                         <th>Purchases</th>
-                        <th>Gross Margin</th>
+                        <th>CTR</th>
+                        <th>CPR</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -492,8 +581,9 @@
                 <ul>
                     <li><strong>IMPRESSIONS</strong> are the number of times each concert was shown</li>
                     <li><strong>CLICKS</strong> are how many times users clicked on the concert</li>
-                    <li><strong>VIEWS</strong> are how many times users viewed the details page</li>
                     <li><strong>PURCHASES</strong> are how many tickets were sold</li>
+                    <li><strong>CTR</strong> is the Click-Through Rate (clicks / impressions)</li>
+                    <li><strong>CPR</strong> is the Conversion Rate (purchases / clicks)</li>
                     <li><strong>GROSS MARGIN</strong> is the average profit per ticket sold in USD</li>
                 </ul>
                 <p>This data will be used to calculate key metrics such as click-through rate (CTR) and conversion per view rate (CPR).</p>
@@ -509,7 +599,7 @@
         <div class="step-content">
             <p>Calculating CTR (Click-Through Rate) and CPR (Conversion per View Rate):</p>
             <div class="code-block">CTR = Clicks / Impressions
-CPR = Purchases / Views</div>
+CPR = Purchases / Clicks</div>
             
             <div id="metrics-calculation">
                 <!-- Will be filled with JavaScript -->
@@ -578,6 +668,24 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
     <div id="step4" class="step hidden">
         <h2 class="step-title">STEP 4: BETA DISTRIBUTION VISUALIZATION</h2>
         <div class="step-content">
+            <div class="explanation">
+                <h3>Cálculo de CTR y CPR</h3>
+                <div class="metrics-visualization">
+                    <div class="metric-group">
+                        <h4>CTR (Click-Through Rate)</h4>
+                        <div class="metric-cards">
+                            <!-- Will be filled with JavaScript -->
+                        </div>
+                    </div>
+                    <div class="metric-group">
+                        <h4>CPR (Conversion Rate)</h4>
+                        <div class="metric-cards">
+                            <!-- Will be filled with JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="chart-container">
                 <canvas id="ctrDistributionChart"></canvas>
             </div>
@@ -773,6 +881,13 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
             return '#' + (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0');
         }
 
+        function getColorWithOpacity(color, opacity) {
+            const r = parseInt(color.slice(1, 3), 16);
+            const g = parseInt(color.slice(3, 5), 16);
+            const b = parseInt(color.slice(5, 7), 16);
+            return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+        }
+
         // Variables globales
         let observedMetrics = {};
         let betaParameters = {};
@@ -801,6 +916,19 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
                 container.appendChild(newConcert);
             });
 
+            // Asignar colores iniciales a los recuadros
+            document.querySelectorAll('.concert-input').forEach((concertInput, index) => {
+                const colorInput = concertInput.querySelector('input[type="color"]');
+                concertInput.style.backgroundColor = colorInput.value;
+            });
+
+            // Actualizar color cuando cambie el input de color
+            document.querySelectorAll('input[type="color"]').forEach(colorInput => {
+                colorInput.addEventListener('input', function() {
+                    this.closest('.concert-input').style.backgroundColor = this.value;
+                });
+            });
+
             // Manejar el envío del formulario
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -813,7 +941,6 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
                 const names = formData.getAll('name[]');
                 const impressions = formData.getAll('impressions[]');
                 const clicks = formData.getAll('clicks[]');
-                const views = formData.getAll('views[]');
                 const purchases = formData.getAll('purchases[]');
                 const gross_margins = formData.getAll('gross_margin[]');
                 const colors = formData.getAll('color[]');
@@ -823,7 +950,6 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
                     concerts[name] = {
                         impressions: parseInt(impressions[index]),
                         clicks: parseInt(clicks[index]),
-                        views: parseInt(views[index]),
                         purchases: parseInt(purchases[index]),
                         gross_margin: parseFloat(gross_margins[index]),
                         color: colors[index]
@@ -910,9 +1036,9 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
                     <td>${name}</td>
                     <td>${data.impressions}</td>
                     <td>${data.clicks}</td>
-                    <td>${data.views}</td>
                     <td>${data.purchases}</td>
-                    <td>$${data.gross_margin.toFixed(2)}</td>
+                    <td>${(data.clicks / data.impressions * 100).toFixed(2)}%</td>
+                    <td>${(data.purchases / data.clicks * 100).toFixed(2)}%</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -922,7 +1048,6 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
             
             const impressionsData = Object.values(window.concerts).map(c => c.impressions);
             const clicksData = Object.values(window.concerts).map(c => c.clicks);
-            const viewsData = Object.values(window.concerts).map(c => c.views);
             const purchasesData = Object.values(window.concerts).map(c => c.purchases);
             const colors = Object.values(window.concerts).map(c => c.color);
             
@@ -934,23 +1059,15 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
                         {
                             label: 'Impressions',
                             data: impressionsData,
-                            backgroundColor: colors,
-                            borderColor: colors.map(c => darkenColor(c, 0.2)),
+                            backgroundColor: colors.map(c => getColorWithOpacity(c, 0.8)),
+                            borderColor: colors,
                             borderWidth: 1,
                             borderRadius: 4
                         },
                         {
                             label: 'Clicks',
                             data: clicksData,
-                            backgroundColor: colors.map(c => lightenColor(c, 0.3)),
-                            borderColor: colors,
-                            borderWidth: 1,
-                            borderRadius: 4
-                        },
-                        {
-                            label: 'Views',
-                            data: viewsData,
-                            backgroundColor: colors.map(c => lightenColor(c, 0.5)),
+                            backgroundColor: colors.map(c => getColorWithOpacity(c, 0.6)),
                             borderColor: colors,
                             borderWidth: 1,
                             borderRadius: 4
@@ -958,7 +1075,7 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
                         {
                             label: 'Purchases',
                             data: purchasesData,
-                            backgroundColor: colors.map(c => lightenColor(c, 0.7)),
+                            backgroundColor: colors.map(c => getColorWithOpacity(c, 0.4)),
                             borderColor: colors,
                             borderWidth: 1,
                             borderRadius: 4
@@ -1016,15 +1133,19 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
             
             Object.entries(window.concerts).forEach(([name, data]) => {
                 const ctr = data.clicks / data.impressions;
-                const cpr = data.purchases / data.views;
+                const cpr = data.purchases / data.clicks;
                 
                 // Almacenar métricas
                 observedMetrics[name] = { ctr, cpr };
                 
                 const p = document.createElement('p');
-                p.innerHTML = `<strong>${name}:</strong><br>
-                    CTR = ${data.clicks} / ${data.impressions} = ${formatNumber(ctr)}<br>
-                    CPR = ${data.purchases} / ${data.views} = ${formatNumber(cpr)}`;
+                p.setAttribute('data-concert', name);
+                p.style.setProperty('--concert-color', data.color);
+                p.innerHTML = `<strong>${name}</strong>
+                    <div class="value">${(ctr * 100).toFixed(2)}%</div>
+                    <div class="formula">CTR = ${data.clicks} / ${data.impressions} = ${formatNumber(ctr)}</div>
+                    <div class="value">${(cpr * 100).toFixed(2)}%</div>
+                    <div class="formula">CPR = ${data.purchases} / ${data.clicks} = ${formatNumber(cpr)}</div>`;
                 metricsDiv.appendChild(p);
             });
             
@@ -1044,15 +1165,15 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
                         {
                             label: 'CTR',
                             data: ctrData,
-                            backgroundColor: colors,
-                            borderColor: colors.map(c => darkenColor(c, 0.2)),
+                            backgroundColor: colors.map(c => getColorWithOpacity(c, 0.8)),
+                            borderColor: colors,
                             borderWidth: 1,
                             borderRadius: 4
                         },
                         {
                             label: 'CPR',
                             data: cprData,
-                            backgroundColor: colors.map(c => lightenColor(c, 0.3)),
+                            backgroundColor: colors.map(c => getColorWithOpacity(c, 0.6)),
                             borderColor: colors,
                             borderWidth: 1,
                             borderRadius: 4
@@ -1116,20 +1237,27 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
             betaDiv.innerHTML = '';
             
             Object.entries(window.concerts).forEach(([name, data]) => {
-                // Para CTR
-                const ctrAlpha = data.clicks + 1;
+                // Para CTR - valores base sin añadir 20
+                const ctrAlpha = data.clicks + 1;  // Solo añadimos 1 para evitar distribución degenerada
                 const ctrBeta = (data.impressions - data.clicks) + 1;
-                // Para CPR
-                const cprAlpha = data.purchases + 1;
-                const cprBeta = (data.views - data.purchases) + 1;
+                
+                // Para CPR - valores base sin añadir 20
+                const cprAlpha = data.purchases + 1;  // Solo añadimos 1 para evitar distribución degenerada
+                const cprBeta = (data.clicks - data.purchases) + 1;
                 
                 // Almacenar parámetros
                 betaParameters[name] = { ctrAlpha, ctrBeta, cprAlpha, cprBeta };
                 
                 const p = document.createElement('p');
-                p.innerHTML = `<strong>${name}:</strong><br>
-                    CTR: α = ${ctrAlpha}, β = ${ctrBeta}<br>
-                    CPR: α = ${cprAlpha}, β = ${cprBeta}`;
+                p.setAttribute('data-concert', name);
+                p.style.setProperty('--concert-color', data.color);
+                p.innerHTML = `<strong>${name}</strong>
+                    <div class="value">CTR: α = ${ctrAlpha}, β = ${ctrBeta}</div>
+                    <div class="formula">α = clicks + 1 = ${data.clicks} + 1</div>
+                    <div class="formula">β = (impressions - clicks) + 1 = ${data.impressions - data.clicks} + 1</div>
+                    <div class="value">CPR: α = ${cprAlpha}, β = ${cprBeta}</div>
+                    <div class="formula">α = purchases + 1 = ${data.purchases} + 1</div>
+                    <div class="formula">β = (clicks - purchases) + 1 = ${data.clicks - data.purchases} + 1</div>`;
                 betaDiv.appendChild(p);
             });
             
@@ -1147,7 +1275,7 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
                     label: `${name} CTR`,
                     data: y,
                     borderColor: colors[i],
-                    backgroundColor: colors[i] + '40',
+                    backgroundColor: getColorWithOpacity(colors[i], 0.2),
                     fill: true,
                     tension: 0.4
                 };
@@ -1224,7 +1352,7 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
                     label: `${name} CPR`,
                     data: y,
                     borderColor: colors[i],
-                    backgroundColor: colors[i] + '40',
+                    backgroundColor: getColorWithOpacity(colors[i], 0.2),
                     fill: true,
                     tension: 0.4
                 };
@@ -1293,6 +1421,41 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
             });
         }
 
+        // PASO 4: Distribución visualización
+        function initializeStep4() {
+            // Añadir visualización de métricas
+            const ctrCards = document.querySelector('.metric-group:nth-child(1) .metric-cards');
+            const cprCards = document.querySelector('.metric-group:nth-child(2) .metric-cards');
+            
+            Object.entries(window.concerts).forEach(([name, data]) => {
+                const color = data.color;
+                
+                // CTR Card
+                const ctrCard = document.createElement('div');
+                ctrCard.className = 'metric-card';
+                ctrCard.style.backgroundColor = getColorWithOpacity(color, 0.8);
+                ctrCard.innerHTML = `
+                    <div class="title">${name}</div>
+                    <div class="value">${(data.clicks / data.impressions * 100).toFixed(2)}%</div>
+                    <div class="formula">${data.clicks} clicks / ${data.impressions} impressions</div>
+                `;
+                ctrCards.appendChild(ctrCard);
+                
+                // CPR Card
+                const cprCard = document.createElement('div');
+                cprCard.className = 'metric-card';
+                cprCard.style.backgroundColor = getColorWithOpacity(color, 0.8);
+                cprCard.innerHTML = `
+                    <div class="title">${name}</div>
+                    <div class="value">${(data.purchases / data.clicks * 100).toFixed(2)}%</div>
+                    <div class="formula">${data.purchases} purchases / ${data.clicks} clicks</div>
+                `;
+                cprCards.appendChild(cprCard);
+            });
+
+            // Resto del código de initializeStep4...
+        }
+
         // PASO 5: Muestreo de Thompson
         function initializeStep5() {
             // Realizar muestreo de Thompson
@@ -1307,9 +1470,13 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
                 sampledValues[name] = { ctr, cpr };
                 
                 const p = document.createElement('p');
-                p.innerHTML = `<strong>${name}:</strong><br>
-                    CTR = ${formatNumber(ctr)}<br>
-                    CPR = ${formatNumber(cpr)}`;
+                p.setAttribute('data-concert', name);
+                p.style.setProperty('--concert-color', data.color);
+                p.innerHTML = `<strong>${name}</strong>
+                    <div class="value">${(ctr * 100).toFixed(2)}%</div>
+                    <div class="formula">CTR = ${formatNumber(ctr)}</div>
+                    <div class="value">${(cpr * 100).toFixed(2)}%</div>
+                    <div class="formula">CPR = ${formatNumber(cpr)}</div>`;
                 sampledValuesDiv.appendChild(p);
             });
             
@@ -1327,7 +1494,7 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
                     label: `${name} CTR`,
                     data: y,
                     borderColor: colors[i],
-                    backgroundColor: colors[i] + '40',
+                    backgroundColor: getColorWithOpacity(colors[i], 0.2),
                     fill: true,
                     tension: 0.4
                 };
@@ -1428,7 +1595,7 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
                     label: `${name} CPR`,
                     data: y,
                     borderColor: colors[i],
-                    backgroundColor: colors[i] + '40',
+                    backgroundColor: getColorWithOpacity(colors[i], 0.2),
                     fill: true,
                     tension: 0.4
                 };
@@ -1534,8 +1701,11 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
                 scores[name] = score;
                 
                 const p = document.createElement('p');
-                p.innerHTML = `<strong>${name}:</strong><br>
-                    Score = ${formatNumber(sampledValues[name].ctr)} × ${formatNumber(sampledValues[name].cpr)} × $${data.gross_margin.toFixed(2)} = $${formatNumber(score)}`;
+                p.setAttribute('data-concert', name);
+                p.style.setProperty('--concert-color', data.color);
+                p.innerHTML = `<strong>${name}</strong>
+                    <div class="value">${formatNumber(score)}</div>
+                    <div class="formula">Score = ${formatNumber(sampledValues[name].ctr)} × ${formatNumber(sampledValues[name].cpr)} × ${data.gross_margin.toFixed(2)}</div>`;
                 scoresDiv.appendChild(p);
             });
             
@@ -1642,6 +1812,71 @@ The '+1' is known as Laplace smoothing and prevents degenerate distributions.</d
         // Función para muestrear de distribución Beta
         function betaSample(alpha, beta) {
             return jStat.beta.sample(alpha, beta);
+        }
+
+        function createConcert(name, trueClicks, truePurchases, priorClicks, priorPurchases, priorClicksAlpha, priorPurchasesAlpha, priorClicksBeta, priorPurchasesBeta) {
+            return {
+                name,
+                trueClicks: trueClicks / 1000,
+                truePurchases: truePurchases / 1000,
+                impressions: 0,
+                clicks: 0,
+                purchases: 0,
+                priorClicks: {
+                    alpha: priorClicksAlpha,
+                    beta: priorClicksBeta
+                },
+                priorPurchases: {
+                    alpha: priorPurchasesAlpha,
+                    beta: priorPurchasesBeta
+                },
+                clickRate: 0,
+                purchaseRate: 0
+            };
+        }
+
+        function updateConcert(concert, impressions) {
+            // Simular clicks
+            const clicks = Math.round(impressions * concert.trueClicks);
+            concert.impressions += impressions;
+            concert.clicks += clicks;
+
+            // Simular purchases
+            const purchases = Math.round(clicks * concert.truePurchases);
+            concert.purchases += purchases;
+
+            // Actualizar tasas
+            concert.clickRate = concert.clicks / concert.impressions;
+            concert.purchaseRate = concert.purchases / concert.clicks;
+
+            return { clicks, purchases };
+        }
+
+        function selectConcert(concerts) {
+            let bestConcert = null;
+            let bestScore = -Infinity;
+
+            for (const concert of concerts) {
+                // Muestrear de las distribuciones beta
+                const clickRate = jStat.beta.sample(
+                    concert.priorClicks.alpha + concert.clicks,
+                    concert.priorClicks.beta + (concert.impressions - concert.clicks)
+                );
+                const purchaseRate = jStat.beta.sample(
+                    concert.priorPurchases.alpha + concert.purchases,
+                    concert.priorPurchases.beta + (concert.clicks - concert.purchases)
+                );
+
+                // Calcular score combinado
+                const score = clickRate * purchaseRate;
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestConcert = concert;
+                }
+            }
+
+            return bestConcert;
         }
     </script>
 </body>
